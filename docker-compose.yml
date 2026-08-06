@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: zelajampa-db
+    image: postgis/postgis:15-3.3
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: zelajampa
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - zelajampa-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  zelajampa-network:
+    name: zelajampa-network
+    driver: bridge
+
+volumes:
+  pgdata:
+    name: zelajampa-pgdata
