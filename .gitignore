@@ -1,0 +1,17 @@
+AGENTS.md
+plan.md
+
+# Rust / Cargo
+/target
+**/*.rs.bk
+*.pdb
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
