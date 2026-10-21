@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Coluna Esquerda: Formulário de Denúncia -->
+    <div class="lg:col-span-4 space-y-6">
+        <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <h2 class="text-xl font-bold text-slate-800 mb-1 flex items-center gap-2">
+                <span>📢</span> Nova Denúncia
+            </h2>
+            <p class="text-xs text-slate-500 mb-5">
+                Clique no mapa ao lado ou use o GPS para preencher o local exato.
+            </p>
+
+            <form id="report-form"
+                  hx-post="/reports"
+                  hx-target="#report-list"
+                  hx-swap="afterbegin"
+                  class="space-y-4">
+                
+                <div>
+                    <label for="title" class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1">Título</label>
+                    <input type="text" id="title" name="title" required
+                           placeholder="Ex: Buraco profundo na via principal"
+                           class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                </div>
+
+                <div>
+                    <label for="category" class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1">Categoria</label>
+                    <select id="category" name="category" required
+                            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+                        <option value="Pothole">Buraco / Asfalto</option>
+                        <option value="Lighting">Iluminação Pública</option>
+                        <option value="Sanitation">Saneamento / Esgoto</option>
+                        <option value="Other">Outro</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="description" class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1">Descrição</label>
+                    <textarea id="description" name="description" rows="3" required
+                              placeholder="Descreva detalhes, pontos de referência..."
+                              class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-md border border-slate-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-600">Localização</span>
+                        <button type="button" id="btn-gps"
+                                class="text-xs text-emerald-700 hover:text-emerald-800 font-medium underline flex items-center gap-1">
+                            🎯 Usar meu GPS
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <span class="text-slate-400">Lat:</span>
+                            <span id="display-lat" class="font-mono text-slate-700 font-medium">Não definida</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Lon:</span>
+                            <span id="display-lon" class="font-mono text-slate-700 font-medium">Não definida</span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="lat" name="lat" required />
+                    <input type="hidden" id="lon" name="lon" required />
+                </div>
+
+                <button type="submit"
+                        class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-md shadow transition-colors flex items-center justify-center gap-2">
+                    <span>Enviar Denúncia</span>
+                    <span class="htmx-indicator animate-spin">⏳</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Informações do Geohash -->
+        <section class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-emerald-900 space-y-2">
+            <h3 class="font-bold text-emerald-800 flex items-center gap-1">
+                <span>ℹ️</span> Agrupamento Inteligente
+            </h3>
+            <p>
+                As demandas são automaticamente agrupadas em <strong>geohashes de precisão 7 (~153m)</strong> direto no PostGIS.
+                Isso agrupa queixas na mesma quadra/rua e evidencia os gargalos prioritários.
+            </p>
+        </section>
+    </div>
+
+    <!-- Coluna Direita: Mapa Interativo & Lista -->
+    <div class="lg:col-span-8 space-y-6">
+        <!-- Mapa de Clusters -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Mapa de Demandas</h2>
+                    <p class="text-xs text-slate-500">Clusters espaciais calculados no PostGIS</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="precision-select" class="text-xs text-slate-600 font-medium">Precisão:</label>
+                    <select id="precision-select"
+                            class="text-xs border border-slate-300 rounded px-2 py-1 bg-white">
+                        <option value="6">6 (~1.2 km - Bairro)</option>
+                        <option value="7" selected>7 (~153 m - Rua/Quadra)</option>
+                        <option value="8">8 (~38 m - Esquina)</option>
+                    </select>
+                    <button type="button" id="btn-refresh-map"
+                            class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-2.5 py-1 rounded border border-slate-300 transition">
+                        🔄 Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <div id="map" class="w-full h-[460px] rounded-lg border border-slate-200"></div>
+
+            <div class="flex items-center gap-4 text-xs text-slate-500 pt-1">
+                <span class="font-medium">Legenda de Clusters:</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> 1-2</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> 3-4</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-rose-600 inline-block"></span> 5+</span>
+            </div>
+        </div>
+
+        <!-- Feed de Denúncias Recentes -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold text-slate-800">Denúncias Recentes</h2>
+                <span class="text-xs text-slate-400">Tempo real</span>
+            </div>
+
+            <div id="report-list" class="space-y-3">
+                {% for report in reports %}
+                    {% include "report_row.html" %}
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Centro de João Pessoa
+    const JP_COORDS = [-7.1195, -34.8450];
+    const map = L.map('map').setView(JP_COORDS, 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let clusterLayer = L.layerGroup().addTo(map);
+    let selectedMarker = null;
+
+    function setLocation(lat, lon) {
+        document.getElementById('lat').value = lat.toFixed(6);
+        document.getElementById('lon').value = lon.toFixed(6);
+        document.getElementById('display-lat').textContent = lat.toFixed(5);
+        document.getElementById('display-lon').textContent = lon.toFixed(5);
+
+        if (selectedMarker) {
+            selectedMarker.setLatLng([lat, lon]);
+        } else {
+            selectedMarker = L.marker([lat, lon], { draggable: true }).addTo(map);
+            selectedMarker.on('dragend', function (e) {
+                const pos = e.target.getLatLng();
+                setLocation(pos.lat, pos.lng);
+            });
+        }
+    }
+
+    map.on('click', function(e) {
+        setLocation(e.latlng.lat, e.latlng.lng);
+    });
+
+    document.getElementById('btn-gps').addEventListener('click', function() {
+        if (!navigator.geolocation) {
+            alert('Geolocalização não suportada no seu navegador.');
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                setLocation(lat, lon);
+                map.setView([lat, lon], 16);
+            },
+            function(err) {
+                alert('Erro ao obter GPS: ' + err.message);
+            }
+        );
+    });
+
+    function getClusterStyle(count) {
+        if (count >= 5) {
+            return { color: '#dc2626', size: 36, fill: '#ef4444' };
+        } else if (count >= 3) {
+            return { color: '#d97706', size: 30, fill: '#f59e0b' };
+        } else {
+            return { color: '#059669', size: 24, fill: '#10b981' };
+        }
+    }
+
+    async function loadClusters() {
+        const precision = document.getElementById('precision-select').value || 7;
+        try {
+            const resp = await fetch(`/clusters?precision=${precision}`);
+            if (!resp.ok) return;
+            const clusters = await resp.json();
+
+            clusterLayer.clearLayers();
+
+            clusters.forEach(c => {
+                const style = getClusterStyle(c.report_count);
+                const icon = L.divIcon({
+                    className: 'cluster-marker',
+                    html: `<div style="background-color: ${style.fill}; width: ${style.size}px; height: ${style.size}px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${c.report_count}</div>`,
+                    iconSize: [style.size, style.size],
+                    iconAnchor: [style.size / 2, style.size / 2]
+                });
+
+                const marker = L.marker([c.center_lat, c.center_lon], { icon: icon });
+                marker.bindPopup(`
+                    <div class="text-xs font-sans">
+                        <strong class="text-sm block mb-1">Cluster: ${c.hash_id}</strong>
+                        <div><strong>Demandas:</strong> ${c.report_count}</div>
+                        <div><strong>Centro:</strong> [${c.center_lat.toFixed(4)}, ${c.center_lon.toFixed(4)}]</div>
+                    </div>
+                `);
+                clusterLayer.addLayer(marker);
+            });
+        } catch (e) {
+            console.error('Falha ao carregar clusters:', e);
+        }
+    }
+
+    document.getElementById('precision-select').addEventListener('change', loadClusters);
+    document.getElementById('btn-refresh-map').addEventListener('click', loadClusters);
+
+    // Quando o form HTMX submeter com sucesso:
+    document.getElementById('report-form').addEventListener('htmx:afterRequest', function(evt) {
+        if (evt.detail.successful) {
+            this.reset();
+            document.getElementById('lat').value = '';
+            document.getElementById('lon').value = '';
+            document.getElementById('display-lat').textContent = 'Não definida';
+            document.getElementById('display-lon').textContent = 'Não definida';
+            if (selectedMarker) {
+                map.removeLayer(selectedMarker);
+                selectedMarker = null;
+            }
+            loadClusters();
+        }
+    });
+
+    window.refreshMapClusters = loadClusters;
+    loadClusters();
+</script>
+{% endblock %}
