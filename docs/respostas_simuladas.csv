@@ -1,0 +1,21 @@
+id,perfil_locomocao,frequencia,problema_principal,problema_secundario,tentou_relatar,aderencia_zelajampa,ponto_critico
+1,Automovel,Diariamente,Buracos no asfalto,Iluminacao precaria,Nao burocratico,Sim com certeza,Marginal BR-230 em frente ao Atacadao
+2,Motocicleta,Diariamente,Iluminacao precaria,Pista estreita sem placas,Nao burocratico,Sim com certeza,Alca de acesso para Intermares no escuro
+3,Transporte coletivo,Diariamente,Iluminacao precaria,Calcadas quebradas,Apenas WhatsApp redes,Sim com certeza,Parada de onibus da BR-230 sem luz
+4,Automovel,Diariamente,Buracos no asfalto,Pista estreita sem placas,Sim protocolo oficial,Sim com certeza,Avenida Mar Vermelho com asfalto afundado
+5,A pe ou bicicleta,2 a 4 vezes por semana,Calcadas quebradas,Iluminacao precaria,Nao burocratico,Talvez facilidade,Calcada da orla de Intermares desnivelada
+6,Motocicleta,Diariamente,Pista estreita sem placas,Buracos no asfalto,Apenas WhatsApp redes,Sim com certeza,Afunilamento de via sem sinalizacao na BR
+7,Transporte coletivo,Diariamente,Iluminacao precaria,Buracos no asfalto,Nao burocratico,Sim com certeza,Passarela escura proximo a Intermares
+8,Automovel,2 a 4 vezes por semana,Buracos no asfalto,Iluminacao precaria,Nao burocratico,Sim com certeza,Desniveis perigosos na alca de retorno
+9,Motocicleta,Diariamente,Buracos no asfalto,Pista estreita sem placas,Apenas WhatsApp redes,Sim com certeza,Material solto e brita nas marginais da BR
+10,Transporte coletivo,Diariamente,Iluminacao precaria,Calcadas quebradas,Nao burocratico,Sim com certeza,Parada de onibus em frente aos comercios
+11,Automovel,Diariamente,Buracos no asfalto,Iluminacao precaria,Sim protocolo oficial,Sim com certeza,Entrada principal de Intermares esburacada
+12,A pe ou bicicleta,Diariamente,Calcadas quebradas,Iluminacao precaria,Apenas WhatsApp redes,Sim com certeza,Trecho residencial sem calcada e com pocoes
+13,Motocicleta,Diariamente,Pista estreita sem placas,Iluminacao precaria,Nao burocratico,Sim com certeza,Falta de placa no estreitamento da BR-230
+14,Automovel,Ocasionalmente,Buracos no asfalto,Pista estreita sem placas,Nunca necessitou,Talvez facilidade,Desvio subito de crateras na marginal
+15,Transporte coletivo,2 a 4 vezes por semana,Iluminacao precaria,Buracos no asfalto,Nao burocratico,Sim com certeza,Postes queimados perto da estacao de trem
+16,Motocicleta,Diariamente,Iluminacao precaria,Buracos no asfalto,Apenas WhatsApp redes,Sim com certeza,Pista escura com asfalto irregular
+17,Automovel,Diariamente,Buracos no asfalto,Pista estreita sem placas,Sim protocolo oficial,Sim com certeza,Rotatoria de retorno sem manutencao
+18,Transporte coletivo,Diariamente,Iluminacao precaria,Calcadas quebradas,Nao burocratico,Sim com certeza,Acesso a pe a BR totalmente escuro
+19,A pe ou bicicleta,2 a 4 vezes por semana,Iluminacao precaria,Buracos no asfalto,Apenas WhatsApp redes,Nao usaria,Lama e falta de iluminacao em rua interna
+20,Automovel,Ocasionalmente,Pista estreita sem placas,Buracos no asfalto,Nao burocratico,Talvez facilidade,Reducao brusca de pista sem aviso previo
