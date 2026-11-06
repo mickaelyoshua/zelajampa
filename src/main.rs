@@ -30,9 +30,9 @@ async fn main() {
     let state = AppState { db: pool };
     let app = app_router(state);
 
-    let addr = env::var("SERVER_ADDR").unwrap_or_else(|_| "0.0.0.0:8080".to_string());
+    let addr = env::var("SERVER_ADDR").unwrap_or_else(|_| "localhost:8080".to_string());
     let listener = TcpListener::bind(&addr).await.unwrap();
-    
+
     tracing::info!("ZelaJampa Server online! Escutando em {}", addr);
 
     axum::serve(listener, app).await.unwrap();
