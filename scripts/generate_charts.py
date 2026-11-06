@@ -11,7 +11,7 @@ plt.rcParams["font.sans-serif"] = "DejaVu Sans"
 plt.rcParams["axes.edgecolor"] = "#cbd5e1"
 plt.rcParams["axes.linewidth"] = 0.8
 
-csv_path = "docs/respostas_simuladas.csv"
+csv_path = "docs/respostas.csv"
 
 locomocao = []
 frequencia = []
