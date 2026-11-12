@@ -153,3 +153,42 @@ async fn create_report_unknown_category_defaults_to_other() {
     let response = app.oneshot(request).await.unwrap();
     assert_eq!(response.status(), StatusCode::CREATED);
 }
+
+#[tokio::test]
+async fn index_does_not_depend_on_external_cdn() {
+    let (_guard, state) = setup().await;
+    let app = app_router(state);
+
+    let request = Request::builder().uri("/").body(Body::empty()).unwrap();
+    let response = app.oneshot(request).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let bytes = response.into_body().collect().await.unwrap().to_bytes();
+    let body = String::from_utf8(bytes.to_vec()).unwrap();
+
+    assert!(!body.contains("cdn.tailwindcss.com"));
+    assert!(!body.contains("unpkg.com"));
+}
+
+#[tokio::test]
+async fn static_assets_are_served_with_correct_content_type() {
+    let (_guard, state) = setup().await;
+
+    let cases = [
+        ("/static/css/app.css", "text/css"),
+        ("/static/vendor/htmx.min.js", "text/javascript"),
+        ("/static/vendor/leaflet/leaflet.css", "text/css"),
+        ("/static/vendor/leaflet/leaflet.js", "text/javascript"),
+        ("/static/vendor/leaflet/images/marker-icon.png", "image/png"),
+    ];
+
+    for (uri, expected_type) in cases {
+        let app = app_router(state.clone());
+        let request = Request::builder().uri(uri).body(Body::empty()).unwrap();
+        let response = app.oneshot(request).await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK, "{uri}");
+        let content_type = response.headers()[header::CONTENT_TYPE].to_str().unwrap();
+        assert!(content_type.starts_with(expected_type), "{uri}: {content_type}");
+    }
+}
